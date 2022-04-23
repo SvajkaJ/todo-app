@@ -12,11 +12,21 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import ToDoItem from './ToDoItem';
 import ItemAdder from './ItemAdder';
-import { TToDoList, TAction } from '../types/todo';
+import { TToDoList, TToDoItem, TAction } from '../types/todo';
 import { HOST } from '../constants';
+
+function checkQuery(query: string, item: TToDoItem): boolean {
+    // debouncing would be great
+    const itemString = item.id + item.todolistId + item.title + item.text + new Date(item.deadline * 1000).toLocaleString();
+    if (query === "")
+        return true;
+    else
+        return itemString.includes(query);
+}
 
 interface IToDoListProps extends TToDoList {
     dispatchState: React.Dispatch<TAction>;
+    query: string;
 }
 
 // Functional Component that manages a single list
@@ -24,7 +34,8 @@ const ToDoList = ({
     id,
     title,
     items,
-    dispatchState
+    dispatchState,
+    query
 }: IToDoListProps) => {
     const [expanded, setExpanded] = React.useState<boolean>(false);
 
@@ -50,13 +61,16 @@ const ToDoList = ({
                 expandIcon={<ExpandMoreIcon />}
                 id={`todo-list-${id}`}
             >
-                <Typography component="h2" variant="h6">{title}</Typography>
+                <Typography component="h2" variant="h5">{title}</Typography>
             </AccordionSummary>
             <AccordionDetails>
                 <List>
                     {
                     items.map((item) => {
-                        return <ToDoItem key={`list-${item.todolistId}-${item.id}`} dispatchState={dispatchState} {...item}/>
+                        if (checkQuery(query, item))
+                            return <ToDoItem key={`list-${item.todolistId}-${item.id}`} dispatchState={dispatchState} {...item}/>;
+                        else
+                            return <></>;
                     })
                     }
                     <ItemAdder todolistId={id} dispatchState={dispatchState} />

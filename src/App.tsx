@@ -4,10 +4,11 @@ import axios from 'axios';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import TextField from '@mui/material/TextField';
 
 import { TToDoList, TAction } from './types/todo';
 import { HOST } from './constants';
-import './App.css';
 
 import ListAdder from './components/ListAdder';
 import ToDoList from "./components/ToDoList";
@@ -69,8 +70,9 @@ const defaultState: TToDoList[] = [];
 
 const App = () => {
     const [state, dispatchState] = React.useReducer(appReducer, defaultState); // default: empty
+    const [query, setQuery] = React.useState<string>("");
 
-    const getData = () => {
+    React.useEffect(() => {
         axios.get<TToDoList[]>(`${HOST}/todolist`)
         .then((response) => { // type is implied
             if (response.status === 200) {
@@ -80,25 +82,32 @@ const App = () => {
         .catch((error) => {
             console.log(error);
         });
-    };
-
-    React.useEffect(() => {
-        getData();
     }, []);
 
     return (
         <Container className="todo-app-container">
             <>
-            <Typography variant="h1">Hello</Typography>
+            <Typography component="h1" variant="h4">Your ToDo App</Typography>
 
-            {/* Action buttons */}
+            {/* Search query input field */}
             <Card>
-                Add Filter
+                <CardContent>
+                    <TextField
+                        id="todo-app-search-query"
+                        label="Filter"
+                        placeholder="Search..."
+                        variant="standard"
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                        
+                    />
+                </CardContent>
             </Card>
 
+            {/* Rendering the lists */}
             {
                 state.map((list) => {
-                    return <ToDoList key={`list-${list.id}`} dispatchState={dispatchState} {...list}/>
+                    return <ToDoList key={`list-${list.id}`} dispatchState={dispatchState} query={query} {...list}/>
                 })
             }
 
