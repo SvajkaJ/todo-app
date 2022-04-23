@@ -14,6 +14,6 @@ export type TToDoList = {
 };
 
 export type TAction = {
-    type: "set";
+    type: "set" | "add-list" | "delete-list" | "add-item" | "delete-item" | "put-item";
     payload: any;
 };

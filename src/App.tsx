@@ -1,19 +1,65 @@
 import React from 'react';
 import axios from 'axios';
 
-import { Container, Typography } from '@mui/material';
-import { Card, CardContent, CardHeader } from '@mui/material';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
 
-import { TToDoItem, TToDoList, TAction } from "./types/todo";
+import { TToDoList, TAction } from './types/todo';
 import { HOST } from './constants';
 import './App.css';
 
+import ListAdder from './components/ListAdder';
 import ToDoList from "./components/ToDoList";
 
 const appReducer = (state: TToDoList[], action: TAction): TToDoList[] => {
     switch(action.type) {
         case "set":
             return action.payload;
+        case "add-list":
+            // payload: TToDoList
+            return [ ...state, action.payload ];
+        case "delete-list":
+            // payload: TToDoList
+            return state.filter((list) => list.id !== action.payload.id);
+        case "add-item":
+            // payload: TToDoItem
+            return state.map((list) => {
+                if (list.id === action.payload.todolistId) {
+                    return {
+                        ...list,
+                        items: [ ...list.items, action.payload]
+                    };
+                }
+                return list;
+            });
+        case "delete-item":
+            // payload: TToDoItem
+            return state.map((list) => {
+                if (list.id === action.payload.todolistId) {
+                    return {
+                        ...list,
+                        items: list.items.filter((item) => item.id !== action.payload.id)
+                    };
+                }
+                return list;
+            });
+        case "put-item":
+            // payload: TToDoItem
+            return state.map((list) => {
+                if (list.id === action.payload.todolistId) {
+                    return {
+                        ...list,
+                        items: list.items.map((item) => {
+                            if (item.id === action.payload.id) {
+                                return action.payload;
+                            }
+                            return item;
+                        })
+                    };
+                }
+                return list;
+            });
         default:
             return [];
     }
@@ -31,9 +77,9 @@ const App = () => {
                 dispatchState({ type: "set", payload: response.data });
             }
         })
-        .catch(() => {
-
-        })
+        .catch((error) => {
+            console.log(error);
+        });
     };
 
     React.useEffect(() => {
@@ -47,16 +93,17 @@ const App = () => {
 
             {/* Action buttons */}
             <Card>
-                Add
-                Filter
+                Add Filter
             </Card>
 
             {
-                state.map((item) => {
-                    return <ToDoList key={`list-${item.id}`} dispatchState={dispatchState} {...item}/>
+                state.map((list) => {
+                    return <ToDoList key={`list-${list.id}`} dispatchState={dispatchState} {...list}/>
                 })
             }
-            
+
+            {/* Add new list section */}
+            <ListAdder dispatchState={dispatchState} />
             </>
         </Container>
     );

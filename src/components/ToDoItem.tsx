@@ -1,7 +1,7 @@
-import React from "react";
-import axios from "axios";
+import React from 'react';
+import axios from 'axios';
 
-import { Typography } from '@mui/material';
+import Typography from '@mui/material/Typography';
 
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -11,30 +11,56 @@ import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+//import EditIcon from '@mui/icons-material/Edit';
 
-import { HOST } from "../constants";
-import { TToDoItem, TAction } from "../types/todo";
+import { HOST } from '../constants';
+import { TToDoItem, TAction } from '../types/todo';
 
 interface IToDoItemProps extends TToDoItem {
     dispatchState: React.Dispatch<TAction>;
 }
 
-const ToDoItem = (props: IToDoItemProps) => {
+const ToDoItem = ({
+    id,
+    todolistId,
+    title,
+    text,
+    deadline,
+    state,
+    dispatchState
+}: IToDoItemProps) => {
 
-    const { id, todolistId, title, text, deadline, state, dispatchState } = props;
     const dl = new Date(deadline * 1000);
 
-    const handleCheckbox = () => {};
+    const toggleCheckbox = () => {
+        // put
 
-    const handleDeleteItem = () => {
-        axios.delete(`${HOST}/todolist/${todolistId}/todoitem/${id}`)
-        .then((response) => {
-            console.log(response)
-        })
-        .catch(() => {
+        const obj = {
+            id,
+            todolistId,
+            title,
+            text,
+            deadline,
+            state: (state === 0 ? 1 : 0)
+        };
 
+        dispatchState({ type: "put-item", payload: obj });
+    };
+
+    const deleteItem = () => {
+        axios.delete<TToDoItem>(
+            `${HOST}/todolist/${todolistId}/todoitem/${id}`,
+            {
+                headers: {
+                    Accept: "application/json",
+                }
+            }
+        ).then((response) => {
+            dispatchState({ type: "delete-item", payload: response.data });
         })
+        .catch((error) => {
+            console.log(error);
+        });
     };
 
     return (
@@ -45,7 +71,7 @@ const ToDoItem = (props: IToDoItemProps) => {
             <ListItemIcon>
                 <Checkbox
                     checked={state === 1}
-                    onClick={handleCheckbox}
+                    onClick={toggleCheckbox}
                 />
             </ListItemIcon>
             <ListItemText
@@ -63,7 +89,7 @@ const ToDoItem = (props: IToDoItemProps) => {
                 {/* <IconButton aria-label="edit">
                     <EditIcon />
                 </IconButton> */}
-                <IconButton aria-label="delete" onClick={handleDeleteItem}>
+                <IconButton aria-label="delete" onClick={deleteItem}>
                     <DeleteIcon />
                 </IconButton>
             </ListItemSecondaryAction>
