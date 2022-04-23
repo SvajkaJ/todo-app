@@ -99,7 +99,6 @@ const App = () => {
                         variant="standard"
                         value={query}
                         onChange={(event) => setQuery(event.target.value)}
-                        
                     />
                 </CardContent>
             </Card>

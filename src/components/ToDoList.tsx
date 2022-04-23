@@ -55,6 +55,8 @@ const ToDoList = ({
         });
     };
 
+    const sanitizedItems = items.filter((item) => checkQuery(query, item));
+
     return (
         <Accordion expanded={expanded} onChange={() => setExpanded(prevState => !prevState)}>
             <AccordionSummary
@@ -66,12 +68,13 @@ const ToDoList = ({
             <AccordionDetails>
                 <List>
                     {
-                    items.map((item) => {
-                        if (checkQuery(query, item))
-                            return <ToDoItem key={`list-${item.todolistId}-${item.id}`} dispatchState={dispatchState} {...item}/>;
-                        else
-                            return <></>;
-                    })
+                    sanitizedItems.map((item) => (
+                        <ToDoItem
+                            key={`list-${item.todolistId}-${item.id}`}
+                            dispatchState={dispatchState}
+                            {...item}
+                        />
+                    ))
                     }
                     <ItemAdder todolistId={id} dispatchState={dispatchState} />
                 </List>
