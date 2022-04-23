@@ -6,8 +6,12 @@ import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 
-import { TToDoList, TAction } from './types/todo';
+import { TToDoList, TAction, TFilter } from './types/todo';
 import { HOST } from './constants';
 
 import ListAdder from './components/ListAdder';
@@ -70,7 +74,16 @@ const defaultState: TToDoList[] = [];
 
 const App = () => {
     const [state, dispatchState] = React.useReducer(appReducer, defaultState); // default: empty
-    const [query, setQuery] = React.useState<string>("");
+    const [filter, setFilter] = React.useState<TFilter>({ query: "", state: 0 });
+
+    const handleFilterInputs = (event: any) => {
+        setFilter((prevState) => {
+            return {
+                ...prevState,
+                [event.target.name]: event.target.value
+            };
+        });
+    };
 
     React.useEffect(() => {
         axios.get<TToDoList[]>(`${HOST}/todolist`)
@@ -92,21 +105,38 @@ const App = () => {
             {/* Search query input field */}
             <Card>
                 <CardContent>
+                    <Typography component="h2" variant="h5">Filter</Typography>
                     <TextField
                         id="todo-app-search-query"
-                        label="Filter"
+                        label="Query substring"
                         placeholder="Search..."
                         variant="standard"
-                        value={query}
-                        onChange={(event) => setQuery(event.target.value)}
+                        name="query"
+                        value={filter.query}
+                        onChange={handleFilterInputs}
                     />
+                    <FormControl style={{ marginLeft: "1em" }}>
+                        <InputLabel id="todo-app-state-select">State</InputLabel>
+                        <Select
+                            labelId="todo-app-state-select"
+                            id="todo-app-state-select"
+                            value={filter.state}
+                            label="State"
+                            name="state"
+                            onChange={handleFilterInputs}
+                        >
+                            <MenuItem value={0}>All</MenuItem>
+                            <MenuItem value={1}>Only finished</MenuItem>
+                            <MenuItem value={2}>Only unfinised</MenuItem>
+                        </Select>
+                    </FormControl>
                 </CardContent>
             </Card>
 
             {/* Rendering the lists */}
             {
                 state.map((list) => {
-                    return <ToDoList key={`list-${list.id}`} dispatchState={dispatchState} query={query} {...list}/>
+                    return <ToDoList key={`list-${list.id}`} dispatchState={dispatchState} filter={filter} {...list}/>
                 })
             }
 

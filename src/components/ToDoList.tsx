@@ -12,21 +12,45 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import ToDoItem from './ToDoItem';
 import ItemAdder from './ItemAdder';
-import { TToDoList, TToDoItem, TAction } from '../types/todo';
+import { TToDoList, TToDoItem, TAction, TFilter } from '../types/todo';
 import { HOST } from '../constants';
 
-function checkQuery(query: string, item: TToDoItem): boolean {
-    // debouncing would be great
-    const itemString = item.id + item.todolistId + item.title + item.text + new Date(item.deadline * 1000).toLocaleString();
-    if (query === "")
-        return true;
-    else
-        return itemString.includes(query);
+function doFiltering(filter: TFilter, item: TToDoItem): boolean {
+    let flag: boolean;
+
+    // Filter the state of the task (all | finished | unfinished)
+    switch (filter.state) {
+        case 2:
+            // only unfinished => state === 0
+            flag = (item.state === 0);
+            break;
+        case 1:
+            // only finished => state === 1
+            flag = (item.state === 1);
+            break;
+        case 0:
+        default:
+            // all
+            flag = true;
+            break;
+    }
+
+    if (flag === true) {
+        // Filter according to the query
+        if (filter.query === "")
+            return true;
+        else {
+            // debouncing would be great
+            const itemString = item.id + item.todolistId + item.title + item.text + new Date(item.deadline * 1000).toLocaleString();
+            return itemString.includes(filter.query);
+        }
+    }
+    return false;
 }
 
 interface IToDoListProps extends TToDoList {
     dispatchState: React.Dispatch<TAction>;
-    query: string;
+    filter: TFilter;
 }
 
 // Functional Component that manages a single list
@@ -35,7 +59,7 @@ const ToDoList = ({
     title,
     items,
     dispatchState,
-    query
+    filter
 }: IToDoListProps) => {
     const [expanded, setExpanded] = React.useState<boolean>(false);
 
@@ -55,7 +79,7 @@ const ToDoList = ({
         });
     };
 
-    const sanitizedItems = items.filter((item) => checkQuery(query, item));
+    const sanitizedItems = items.filter((item) => doFiltering(filter, item));
 
     return (
         <Accordion expanded={expanded} onChange={() => setExpanded(prevState => !prevState)}>
@@ -79,7 +103,7 @@ const ToDoList = ({
                     <ItemAdder todolistId={id} dispatchState={dispatchState} />
                 </List>
                 <Button variant="contained" onClick={deleteList}>Delete List</Button>
-                <Button variant="contained" onClick={() => setExpanded(false)}>Close</Button>
+                <Button variant="contained" onClick={() => setExpanded(false)} style={{ marginLeft: "1em" }}>Close</Button>
             </AccordionDetails>
         </Accordion>
     );

@@ -5,6 +5,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
+import Grid from '@mui/material/Grid';
 
 import AddIcon from '@mui/icons-material/Add';
 
@@ -49,28 +50,42 @@ const ItemAdder = ({ todolistId, dispatchState }: IItemAdderProps) => {
             divider={true}
             disablePadding
         >
-            <TextField
-                id="todo-item-adder-title"
-                label="Title"
-                variant="standard"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-            />
-            <TextField
-                id="todo-item-adder-text"
-                label="Text"
-                variant="standard"
-                value={text}
-                onChange={(event) => setText(event.target.value)}
-            />
-            <label htmlFor="todo-item-adder-deadline">Deadline:</label>
-            <input
-                type="datetime-local"
-                id="todo-item-adder-deadline"
-                name="todo-item-adder-deadline"
-                value={deadline}
-                onChange={(event) => setDeadline(event.target.value)}
-            />
+            <Grid
+                container
+                columnSpacing={2}
+                alignItems="center"
+            >
+                <Grid item xs={12} md={4} style={{ paddingTop: "1em", paddingBottom: "1em" }}>
+                <TextField
+                    id="todo-item-adder-title"
+                    label="Title"
+                    variant="standard"
+                    fullWidth={true}
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                />
+                </Grid>
+                <Grid item xs={12} md={4} style={{ paddingTop: "1em", paddingBottom: "1em" }}>
+                <TextField
+                    id="todo-item-adder-text"
+                    label="Text"
+                    variant="standard"
+                    fullWidth={true}
+                    value={text}
+                    onChange={(event) => setText(event.target.value)}
+                />
+                </Grid>
+                <Grid item xs={12} md={4} style={{ paddingTop: "1em", paddingBottom: "1em" }}>
+                <label htmlFor="todo-item-adder-deadline">Deadline:</label>
+                <input
+                    type="datetime-local"
+                    id="todo-item-adder-deadline"
+                    name="todo-item-adder-deadline"
+                    value={deadline}
+                    onChange={(event) => setDeadline(event.target.value)}
+                />
+                </Grid>
+            </Grid>
             <ListItemSecondaryAction>
                 <IconButton aria-label="add" onClick={addItem}>
                     <AddIcon />

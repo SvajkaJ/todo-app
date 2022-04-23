@@ -17,3 +17,8 @@ export type TAction = {
     type: "set" | "add-list" | "delete-list" | "add-item" | "delete-item" | "put-item";
     payload: any;
 };
+
+export type TFilter = {
+    query: string;
+    state: number;
+};
