@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 
 import Typography from '@mui/material/Typography';
 import Accordion from '@mui/material/Accordion';
@@ -12,6 +13,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ToDoItem from './ToDoItem';
 import ItemAdder from './ItemAdder';
 import { TToDoList, TAction } from '../types/todo';
+import { HOST } from '../constants';
 
 interface IToDoListProps extends TToDoList {
     dispatchState: React.Dispatch<TAction>;
@@ -25,6 +27,22 @@ const ToDoList = ({
     dispatchState
 }: IToDoListProps) => {
     const [expanded, setExpanded] = React.useState<boolean>(false);
+
+    const deleteList = () => {
+        axios.delete<TToDoList>(
+            `${HOST}/todolist/${id}`,
+            {
+                headers: {
+                    Accept: "application/json",
+                }
+            }
+        ).then((response) => {
+            dispatchState({ type: "delete-list", payload: response.data });
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    };
 
     return (
         <Accordion expanded={expanded} onChange={() => setExpanded(prevState => !prevState)}>
@@ -43,7 +61,7 @@ const ToDoList = ({
                     }
                     <ItemAdder todolistId={id} dispatchState={dispatchState} />
                 </List>
-                <Button variant="contained" onClick={() => {}}>Delete List</Button>
+                <Button variant="contained" onClick={deleteList}>Delete List</Button>
                 <Button variant="contained" onClick={() => setExpanded(false)}>Close</Button>
             </AccordionDetails>
         </Accordion>
