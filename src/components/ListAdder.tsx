@@ -31,6 +31,7 @@ const ListAdder = ({ dispatchState }: IListAdderProps) => {
             }
         ).then((response) => {
             dispatchState({ type: "add-list", payload: response.data});
+            setTitle("");
         })
         .catch((error) => {
             console.log(error);
@@ -41,7 +42,7 @@ const ListAdder = ({ dispatchState }: IListAdderProps) => {
         <Accordion expanded={false}>
             <AccordionDetails>
                 <TextField
-                    id="todo-list-add"
+                    id="todo-list-adder-title"
                     label="Title"
                     variant="standard"
                     value={title}
